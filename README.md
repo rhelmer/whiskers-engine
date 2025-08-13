@@ -58,7 +58,7 @@ graph TB
 - [x] Basic ECS implementation
 - [x] SDL2 integration for window/input
 - [ ] Unit testing framework
-- [ ] Example space shooter game
+- [ ] Demo space ship game
 
 ### Phase 2: Modern Graphics (Q2 2025)
 - [ ] Vulkan backend implementation
