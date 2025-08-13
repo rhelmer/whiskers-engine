@@ -1,9 +1,10 @@
 #pragma once
-#include "Entity.h"
 #include <vector>
 
+#include "Entity.h"
+
 class EntityManager {
-public:
+ public:
   void addEntity(const Entity &entity);
   std::vector<Entity> &getEntities();
 
@@ -11,7 +12,7 @@ public:
   Entity &getShip();
   void setShip(const Entity &entity);
 
-private:
+ private:
   Entity ship;
   std::vector<Entity> entities;
 };

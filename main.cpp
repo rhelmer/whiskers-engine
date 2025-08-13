@@ -1,10 +1,11 @@
 #include <SDL2/SDL.h>
+#include <glad/glad.h>
+
 #include <iostream>
 
 #include "EntityManager.h"
 #include "PhysicsSystem.h"
 #include "Renderer.h"
-#include <glad/glad.h>
 
 int main(int argc, char *argv[]) {
   if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -17,9 +18,8 @@ int main(int argc, char *argv[]) {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
   SDL_Window *window =
-      SDL_CreateWindow("SDL2 + OpenGL Rocket with Layered Flame",
-                       SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600,
-                       SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+      SDL_CreateWindow("SDL2 + OpenGL Rocket with Layered Flame", SDL_WINDOWPOS_CENTERED,
+                       SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 
   if (!window) {
     std::cerr << "SDL_CreateWindow error: " << SDL_GetError() << "\n";
@@ -66,8 +66,7 @@ int main(int argc, char *argv[]) {
   while (running) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-      if (event.type == SDL_QUIT)
-        running = false;
+      if (event.type == SDL_QUIT) running = false;
     }
 
     Uint32 currentTicks = SDL_GetTicks();
@@ -77,9 +76,9 @@ int main(int argc, char *argv[]) {
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     Entity &ship = entityManager.getShip();
 
-    const float rotationSpeed = 180.0f; // degrees per second
-    const float thrustPower = 3.0f;     // acceleration units per second²
-    const float drag = 0.8f;            // friction factor
+    const float rotationSpeed = 180.0f;  // degrees per second
+    const float thrustPower = 3.0f;      // acceleration units per second²
+    const float drag = 0.8f;             // friction factor
 
     // Rotation input
     if (state[SDL_SCANCODE_A]) {

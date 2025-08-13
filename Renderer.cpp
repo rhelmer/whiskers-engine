@@ -1,8 +1,10 @@
 // Renderer.cpp
 #include "Renderer.h"
+
 #include <SDL2/SDL.h>
-#include <cmath>
 #include <glad/glad.h>
+
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
@@ -40,8 +42,8 @@ void main()
 }
 )";
 
-Renderer::Renderer(int width, int height)
-    : windowWidth(width), windowHeight(height) {}
+Renderer::Renderer(int width, int height) : windowWidth(width), windowHeight(height) {
+}
 
 Renderer::~Renderer() {
   glDeleteBuffers(1, &shipVBO);
@@ -70,8 +72,7 @@ GLuint Renderer::compileShader(GLenum type, const char *source) {
 
 GLuint Renderer::createShaderProgram() {
   GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexShaderSource);
-  GLuint fragmentShader =
-      compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
+  GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
   GLuint program = glCreateProgram();
 
   glAttachShader(program, vertexShader);
@@ -96,9 +97,9 @@ GLuint Renderer::createShaderProgram() {
 void Renderer::setupShip() {
   // Ship triangle vertices (pointing up)
   float shipVertices[] = {
-      0.0f,  0.2f,  0.0f, // apex
-      0.2f,  -0.2f, 0.0f, // right base
-      -0.2f, -0.2f, 0.0f  // left base
+      0.0f,  0.2f,  0.0f,  // apex
+      0.2f,  -0.2f, 0.0f,  // right base
+      -0.2f, -0.2f, 0.0f   // left base
   };
 
   glGenVertexArrays(1, &shipVAO);
@@ -106,8 +107,7 @@ void Renderer::setupShip() {
 
   glBindVertexArray(shipVAO);
   glBindBuffer(GL_ARRAY_BUFFER, shipVBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(shipVertices), shipVertices,
-               GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(shipVertices), shipVertices, GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
@@ -117,9 +117,8 @@ void Renderer::setupShip() {
 }
 
 void Renderer::setupFlames() {
-  auto setupFlameLayer = [&](FlameLayer &layer, float *vertices, size_t size,
-                             float scaleBase, glm::vec3 color,
-                             float flickerSpeed, float flickerMagnitude,
+  auto setupFlameLayer = [&](FlameLayer &layer, float *vertices, size_t size, float scaleBase,
+                             glm::vec3 color, float flickerSpeed, float flickerMagnitude,
                              float flickerPosMagnitude) {
     glGenVertexArrays(1, &layer.VAO);
     glGenBuffers(1, &layer.VBO);
@@ -128,8 +127,7 @@ void Renderer::setupFlames() {
     glBindBuffer(GL_ARRAY_BUFFER, layer.VBO);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -142,18 +140,17 @@ void Renderer::setupFlames() {
     layer.flickerPosMagnitude = flickerPosMagnitude;
   };
 
-  setupFlameLayer(flameLayers[0], flame1, sizeof(flame1), 0.45f,
-                  glm::vec3(1.0f, 0.2f, 0.0f), 7.0f, 0.1f, 0.02f);
-  setupFlameLayer(flameLayers[1], flame2, sizeof(flame2), 0.35f,
-                  glm::vec3(1.0f, 0.6f, 0.0f), 12.0f, 0.12f, 0.03f);
-  setupFlameLayer(flameLayers[2], flame3, sizeof(flame3), 0.25f,
-                  glm::vec3(1.0f, 1.0f, 0.3f), 20.0f, 0.15f, 0.04f);
+  setupFlameLayer(flameLayers[0], flame1, sizeof(flame1), 0.45f, glm::vec3(1.0f, 0.2f, 0.0f), 7.0f,
+                  0.1f, 0.02f);
+  setupFlameLayer(flameLayers[1], flame2, sizeof(flame2), 0.35f, glm::vec3(1.0f, 0.6f, 0.0f), 12.0f,
+                  0.12f, 0.03f);
+  setupFlameLayer(flameLayers[2], flame3, sizeof(flame3), 0.25f, glm::vec3(1.0f, 1.0f, 0.3f), 20.0f,
+                  0.15f, 0.04f);
 }
 
 bool Renderer::init() {
   shaderProgram = createShaderProgram();
-  if (!shaderProgram)
-    return false;
+  if (!shaderProgram) return false;
 
   setupShip();
   setupFlames();
@@ -189,14 +186,12 @@ void Renderer::renderShip(const Entity &ship, bool thrusting) {
 
   float scale = shipScale;
 
-  glm::mat4 model =
-      glm::translate(glm::mat4(1.0f), glm::vec3(ship.position, 0.0f)) *
-      glm::rotate(glm::mat4(1.0f), glm::radians(ship.angle),
-                  glm::vec3(0, 0, 1)) *
-      glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
+  glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(ship.position, 0.0f)) *
+                    glm::rotate(glm::mat4(1.0f), glm::radians(ship.angle), glm::vec3(0, 0, 1)) *
+                    glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, 1.0f));
 
   glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-  glUniform3f(overrideColorLoc, 0.0f, 0.0f, 0.0f); // no override color
+  glUniform3f(overrideColorLoc, 0.0f, 0.0f, 0.0f);  // no override color
 
   glBindVertexArray(shipVAO);
   glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -214,27 +209,20 @@ void Renderer::renderShip(const Entity &ship, bool thrusting) {
       float flickerTime = currentTicks * flame.flickerSpeed * 0.001f;
 
       float scaleFlicker =
-          flame.scaleBase +
-          flame.flickerMagnitude * std::sin(flickerTime * 3.14159f * 2.0f);
-      float posFlicker =
-          flame.flickerPosMagnitude * std::sin(flickerTime * 7.0f);
+          flame.scaleBase + flame.flickerMagnitude * std::sin(flickerTime * 3.14159f * 2.0f);
+      float posFlicker = flame.flickerPosMagnitude * std::sin(flickerTime * 7.0f);
 
       glm::vec2 flickerOffset(posFlicker, 0.0f);
 
-      glm::vec2 flamePos = ship.position +
-                           backwardDir * (baseOffset + i * 0.05f) +
-                           flickerOffset;
+      glm::vec2 flamePos = ship.position + backwardDir * (baseOffset + i * 0.05f) + flickerOffset;
 
       glm::mat4 flameModel =
           glm::translate(glm::mat4(1.0f), glm::vec3(flamePos, 0.0f)) *
-          glm::rotate(glm::mat4(1.0f), glm::radians(ship.angle),
-                      glm::vec3(0, 0, 1)) *
-          glm::scale(glm::mat4(1.0f),
-                     glm::vec3(scaleFlicker, scaleFlicker, 1.0f));
+          glm::rotate(glm::mat4(1.0f), glm::radians(ship.angle), glm::vec3(0, 0, 1)) *
+          glm::scale(glm::mat4(1.0f), glm::vec3(scaleFlicker, scaleFlicker, 1.0f));
 
       glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(flameModel));
-      glUniform3f(overrideColorLoc, flame.color.r, flame.color.g,
-                  flame.color.b);
+      glUniform3f(overrideColorLoc, flame.color.r, flame.color.g, flame.color.b);
 
       glBindVertexArray(flame.VAO);
       glDrawArrays(GL_TRIANGLES, 0, 3);

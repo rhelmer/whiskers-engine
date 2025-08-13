@@ -1,16 +1,17 @@
 // Renderer.h
 #pragma once
-#include "EntityManager.h"
 #include <glm/glm.hpp>
+
+#include "EntityManager.h"
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#include "glad/glad.h" // for GLuint, GLenum, GLADloadproc, etc.
+#include "glad/glad.h"  // for GLuint, GLenum, GLADloadproc, etc.
 
-#endif // RENDERER_H
+#endif  // RENDERER_H
 
 class Renderer {
-public:
+ public:
   Renderer(int width, int height);
   ~Renderer();
 
@@ -19,7 +20,7 @@ public:
   void present();
   void renderShip(const Entity &ship, bool thrusting);
 
-private:
+ private:
   void setupShip();
   void setupFlames();
 
@@ -47,8 +48,7 @@ private:
   // Flame vertices (copied from your original)
   float flame1[9] = {0.0f, 0.0f, 0.0f, -0.15f, -0.4f, 0.0f, 0.15f, -0.4f, 0.0f};
   float flame2[9] = {0.0f, 0.0f, 0.0f, -0.10f, -0.3f, 0.0f, 0.10f, -0.3f, 0.0f};
-  float flame3[9] = {0.0f, 0.0f,  0.0f,   -0.05f, -0.15f,
-                     0.0f, 0.05f, -0.15f, 0.0f};
+  float flame3[9] = {0.0f, 0.0f, 0.0f, -0.05f, -0.15f, 0.0f, 0.05f, -0.15f, 0.0f};
 
   // ship scale used in clamp
   const float shipScale = 0.5f;
