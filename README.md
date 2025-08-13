@@ -60,13 +60,13 @@ graph TB
 - [ ] Unit testing framework
 - [ ] Demo space ship game
 
-### Phase 2: Modern Graphics (Q2 2025)
+### Phase 2: Modern Graphics
 - [ ] Vulkan backend implementation
 - [ ] Compute shader support
 - [ ] Multi-threaded command buffer recording
 - [ ] Memory management optimization
 
-### Phase 3: Advanced Features (Q3-Q4 2025)
+### Phase 3: Advanced Features
 - [ ] AI-driven procedural content generation
 - [ ] Neural network integration (ONNX runtime)
 - [ ] Advanced lighting (PBR, ray tracing)
