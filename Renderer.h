@@ -1,8 +1,8 @@
 // Renderer.h
 #pragma once
 #include <glm/glm.hpp>
+#include "Entity.h"
 
-#include "EntityManager.h"
 #ifndef RENDERER_H
 #define RENDERER_H
 
