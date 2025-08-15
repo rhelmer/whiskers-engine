@@ -8,37 +8,48 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+#include <string>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 const char *vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
 out vec3 vertexColor;
+out vec2 TexCoord;  // Add this line
 
 void main()
 {
     gl_Position = projection * view * model * vec4(aPos, 1.0);
     vertexColor = aPos * 0.5 + 0.5;
+    TexCoord = aTexCoord;  // Add this line
 }
 )";
 
 const char *fragmentShaderSource = R"(
 #version 330 core
 in vec3 vertexColor;
+in vec2 TexCoord;  // Add this line
 out vec4 FragColor;
 
 uniform vec3 overrideColor;
+uniform sampler2D spaceshipTexture;  // Add this line
 
 void main()
 {
-    if (overrideColor == vec3(0.0))
-        FragColor = vec4(vertexColor, 1.0);
-    else
+    if (overrideColor == vec3(0.0)) {
+        // Use texture instead of vertex color
+        vec4 texColor = texture(spaceshipTexture, TexCoord);
+        FragColor = texColor;
+    } else {
         FragColor = vec4(overrideColor, 1.0);
+    }
 }
 )";
 
@@ -53,6 +64,27 @@ Renderer::~Renderer() {
     glDeleteVertexArrays(1, &flameLayers[i].VAO);
   }
   glDeleteProgram(shaderProgram);
+}
+
+GLuint Renderer::loadTexture(const std::string &filepath) {
+  GLuint texture;
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+
+  int width, height, channels;
+  unsigned char *data = stbi_load(filepath.c_str(), &width, &height, &channels, 0);
+
+  if (data) {
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    std::cout << "Loaded texture: " << filepath << std::endl;
+  } else {
+    std::cout << "Failed to load texture: " << filepath << std::endl;
+  }
+
+  stbi_image_free(data);
+  return texture;
 }
 
 GLuint Renderer::compileShader(GLenum type, const char *source) {
@@ -95,11 +127,12 @@ GLuint Renderer::createShaderProgram() {
 }
 
 void Renderer::setupShip() {
-  // Ship triangle vertices (pointing up)
+  // Ship triangle vertices with rotated texture coordinates
   float shipVertices[] = {
-      0.0f,  0.2f,  0.0f,  // apex
-      0.2f,  -0.2f, 0.0f,  // right base
-      -0.2f, -0.2f, 0.0f   // left base
+      // Position (x,y,z)    Texture coords (u,v) - rotated 180°
+      0.0f,  0.2f,  0.0f, 0.5f, 0.0f,  // apex -> bottom center of texture
+      0.2f,  -0.2f, 0.0f, 0.0f, 1.0f,  // right base -> top left of texture
+      -0.2f, -0.2f, 0.0f, 1.0f, 1.0f   // left base -> top right of texture
   };
 
   glGenVertexArrays(1, &shipVAO);
@@ -109,8 +142,13 @@ void Renderer::setupShip() {
   glBindBuffer(GL_ARRAY_BUFFER, shipVBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(shipVertices), shipVertices, GL_STATIC_DRAW);
 
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  // Position attribute (location = 0)
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
+
+  // Texture coordinate attribute (location = 1)
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
@@ -157,16 +195,22 @@ bool Renderer::init() {
 
   glEnable(GL_DEPTH_TEST);
 
+  // Add these lines for transparency:
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   modelLoc = glGetUniformLocation(shaderProgram, "model");
   viewLoc = glGetUniformLocation(shaderProgram, "view");
   projLoc = glGetUniformLocation(shaderProgram, "projection");
   overrideColorLoc = glGetUniformLocation(shaderProgram, "overrideColor");
 
+  spaceshipTexture = loadTexture("stellar_whiskers_spaceship.png");
+
   return true;
 }
 
 void Renderer::clear() {
-  glClearColor(0.12f, 0.12f, 0.16f, 1.0f);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);  // Pure black background
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
@@ -194,13 +238,19 @@ void Renderer::renderShip(const Entity &ship, bool thrusting) {
   glUniform3f(overrideColorLoc, 0.0f, 0.0f, 0.0f);  // no override color
 
   glBindVertexArray(shipVAO);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, spaceshipTexture);
+  glUniform1i(glGetUniformLocation(shaderProgram, "spaceshipTexture"), 0);
+
+  glBindVertexArray(shipVAO);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
   glDrawArrays(GL_TRIANGLES, 0, 3);
 
   if (thrusting) {
     float rad = glm::radians(ship.angle + 90.0f);
     glm::vec2 backwardDir = glm::vec2(cos(rad), sin(rad)) * -1.0f;
 
-    float baseOffset = 0.3f;
+    float baseOffset = 0.15f;  // REDUCE from 0.3f - moves flames closer to ship
 
     Uint32 currentTicks = SDL_GetTicks();
 
@@ -208,13 +258,16 @@ void Renderer::renderShip(const Entity &ship, bool thrusting) {
       const FlameLayer &flame = flameLayers[i];
       float flickerTime = currentTicks * flame.flickerSpeed * 0.001f;
 
-      float scaleFlicker =
-          flame.scaleBase + flame.flickerMagnitude * std::sin(flickerTime * 3.14159f * 2.0f);
+      // REDUCE the scale multiplier to make flames smaller
+      float scaleFlicker = (flame.scaleBase * 0.6f) +
+                           flame.flickerMagnitude * std::sin(flickerTime * 3.14159f * 2.0f);
+
       float posFlicker = flame.flickerPosMagnitude * std::sin(flickerTime * 7.0f);
 
       glm::vec2 flickerOffset(posFlicker, 0.0f);
 
-      glm::vec2 flamePos = ship.position + backwardDir * (baseOffset + i * 0.05f) + flickerOffset;
+      // REDUCE the spacing between flame layers
+      glm::vec2 flamePos = ship.position + backwardDir * (baseOffset + i * 0.02f) + flickerOffset;
 
       glm::mat4 flameModel =
           glm::translate(glm::mat4(1.0f), glm::vec3(flamePos, 0.0f)) *

@@ -1,6 +1,8 @@
 // Renderer.h
 #pragma once
 #include <glm/glm.hpp>
+#include <string>
+
 #include "Entity.h"
 
 #ifndef RENDERER_H
@@ -21,6 +23,8 @@ class Renderer {
   void renderShip(const Entity &ship, bool thrusting);
 
  private:
+  GLuint spaceshipTexture = 0;
+  GLuint loadTexture(const std::string &filepath);
   void setupShip();
   void setupFlames();
 

@@ -1,0 +1,181 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background for transparency testing -->
+  <defs>
+    <!-- Main hull gradient -->
+    <linearGradient id="hullGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#004e92;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0066cc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#000428;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Engine glow gradient -->
+    <radialGradient id="engineGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#00BFFF;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#0088ff;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#004e92;stop-opacity:0.3" />
+    </radialGradient>
+    
+    <!-- Wing gradient -->
+    <linearGradient id="wingGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#00BFFF;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#004e92;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Cockpit gradient -->
+    <radialGradient id="cockpitGradient" cx="50%" cy="30%" r="40%">
+      <stop offset="0%" style="stop-color:#E0F7FA;stop-opacity:0.9" />
+      <stop offset="50%" style="stop-color:#00BFFF;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#004e92;stop-opacity:0.8" />
+    </radialGradient>
+    
+    <!-- Thruster flame gradient -->
+    <linearGradient id="thrusterFlame" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="30%" style="stop-color:#ff6b35;stop-opacity:0.8" />
+      <stop offset="70%" style="stop-color:#00BFFF;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#004e92;stop-opacity:0.2" />
+    </linearGradient>
+    
+    <!-- Glow filter for engines -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Main Hull (sleek arrow shape) -->
+  <path d="M 256 50 
+           L 180 180 
+           L 200 220 
+           L 160 280 
+           L 160 320 
+           L 180 360 
+           L 200 400 
+           L 240 420 
+           L 272 420 
+           L 312 400 
+           L 332 360 
+           L 352 320 
+           L 352 280 
+           L 312 220 
+           L 332 180 
+           Z" 
+           fill="url(#hullGradient)" 
+           stroke="#00BFFF" 
+           stroke-width="2" 
+           opacity="0.95"/>
+  
+  <!-- Wings -->
+  <!-- Left Wing -->
+  <path d="M 180 180 
+           L 80 200 
+           L 60 240 
+           L 80 280 
+           L 160 280 
+           Z" 
+           fill="url(#wingGradient)" 
+           stroke="#FFD700" 
+           stroke-width="1.5" 
+           opacity="0.8"/>
+  
+  <!-- Right Wing -->
+  <path d="M 332 180 
+           L 432 200 
+           L 452 240 
+           L 432 280 
+           L 352 280 
+           Z" 
+           fill="url(#wingGradient)" 
+           stroke="#FFD700" 
+           stroke-width="1.5" 
+           opacity="0.8"/>
+  
+  <!-- Cockpit -->
+  <ellipse cx="256" cy="120" rx="25" ry="35" 
+           fill="url(#cockpitGradient)" 
+           stroke="#E0F7FA" 
+           stroke-width="2" 
+           opacity="0.9"/>
+  
+  <!-- Engine Pods -->
+  <!-- Left Engine -->
+  <ellipse cx="200" cy="380" rx="20" ry="25" 
+           fill="url(#engineGlow)" 
+           stroke="#00BFFF" 
+           stroke-width="2" 
+           filter="url(#glow)"/>
+  
+  <!-- Right Engine -->
+  <ellipse cx="312" cy="380" rx="20" ry="25" 
+           fill="url(#engineGlow)" 
+           stroke="#00BFFF" 
+           stroke-width="2" 
+           filter="url(#glow)"/>
+  
+  <!-- Center Engine -->
+  <ellipse cx="256" cy="390" rx="15" ry="20" 
+           fill="url(#engineGlow)" 
+           stroke="#00BFFF" 
+           stroke-width="2" 
+           filter="url(#glow)"/>
+  
+  <!-- Thruster Flames -->
+  <!-- Left Thruster -->
+  <ellipse cx="200" cy="430" rx="12" ry="20" 
+           fill="url(#thrusterFlame)" 
+           opacity="0.8" 
+           filter="url(#glow)"/>
+  
+  <!-- Right Thruster -->
+  <ellipse cx="312" cy="430" rx="12" ry="20" 
+           fill="url(#thrusterFlame)" 
+           opacity="0.8" 
+           filter="url(#glow)"/>
+  
+  <!-- Center Thruster -->
+  <ellipse cx="256" cy="435" rx="8" ry="15" 
+           fill="url(#thrusterFlame)" 
+           opacity="0.8" 
+           filter="url(#glow)"/>
+  
+  <!-- Detail Lines -->
+  <!-- Hull accent lines -->
+  <line x1="220" y1="150" x2="240" y2="200" 
+        stroke="#FFD700" 
+        stroke-width="1" 
+        opacity="0.6"/>
+  <line x1="292" y1="150" x2="272" y2="200" 
+        stroke="#FFD700" 
+        stroke-width="1" 
+        opacity="0.6"/>
+  
+  <!-- Wing accent lines -->
+  <line x1="100" y1="220" x2="140" y2="260" 
+        stroke="#E0F7FA" 
+        stroke-width="1" 
+        opacity="0.5"/>
+  <line x1="412" y1="220" x2="372" y2="260" 
+        stroke="#E0F7FA" 
+        stroke-width="1" 
+        opacity="0.5"/>
+  
+  <!-- Navigation lights -->
+  <circle cx="80" cy="240" r="3" 
+          fill="#FFD700" 
+          opacity="0.9" 
+          filter="url(#glow)"/>
+  <circle cx="432" cy="240" r="3" 
+          fill="#FFD700" 
+          opacity="0.9" 
+          filter="url(#glow)"/>
+  
+  <!-- Nose detail -->
+  <circle cx="256" cy="70" r="4" 
+          fill="#E0F7FA" 
+          opacity="0.8" 
+          filter="url(#glow)"/>
+</svg>
