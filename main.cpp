@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
 
     const float rotationSpeed = 180.0f;  // degrees per second
     const float thrustPower = 3.0f;      // acceleration units per second²
-    const float drag = 0.8f;             // friction factor
+    const float drag = 0.995f;             // friction factor
 
     // Rotation input
     if (state[SDL_SCANCODE_A]) {
