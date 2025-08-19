@@ -5,14 +5,9 @@
 
 class EntityManager {
  public:
-  void addEntity(const Entity &entity);
-  std::vector<Entity> &getEntities();
-
-  // Add these:
-  Entity &getShip();
-  void setShip(const Entity &entity);
+  size_t createEntity(const Entity& e);
+  std::vector<Entity>& getEntities();
 
  private:
-  Entity ship;
   std::vector<Entity> entities;
 };

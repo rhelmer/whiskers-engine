@@ -52,13 +52,12 @@ int main(int argc, char *argv[]) {
   EntityManager entityManager;
   PhysicsSystem physicsSystem;
 
-  // Initial ship entity
-  Entity shipEntity;
-  shipEntity.position = {0.0f, 0.0f};
-  shipEntity.velocity = {0.0f, 0.0f};
-  shipEntity.angle = 0.0f;
-  shipEntity.angularVelocity = 0.0f;
-  entityManager.setShip(shipEntity);
+  // Create ship
+  Entity ship;
+  ship.position = {0, 0};
+  ship.radius = 16.0f;
+  ship.type = EntityType::Ship;
+  size_t shipIdx = entityManager.createEntity(ship);
 
   Uint32 lastTicks = SDL_GetTicks();
 
@@ -67,6 +66,19 @@ int main(int argc, char *argv[]) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
       if (event.type == SDL_QUIT) running = false;
+      // Fire bullet on key press
+      if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_SPACE) {
+        Entity &ship = entityManager.getEntities()[shipIdx];  // re-fetch
+        Entity bullet;
+        bullet.type = EntityType::Bullet;
+        bullet.radius = 2.0f;
+        bullet.ttl = 1.5f;
+        float rad = glm::radians(ship.angle + 90.0f);
+        glm::vec2 dir = {cos(rad), sin(rad)};
+        bullet.position = ship.position + dir * 0.2f;
+        bullet.velocity = dir * 2.0f;
+        entityManager.createEntity(bullet);  // may reallocate; safe because we won’t reuse refs
+      }
     }
 
     Uint32 currentTicks = SDL_GetTicks();
@@ -74,37 +86,47 @@ int main(int argc, char *argv[]) {
     lastTicks = currentTicks;
 
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    Entity &ship = entityManager.getShip();
 
     const float rotationSpeed = 180.0f;  // degrees per second
     const float thrustPower = 3.0f;      // acceleration units per second²
-    const float drag = 0.995f;             // friction factor
+    const float drag = 0.995f;           // friction factor
 
-    // Rotation input
-    if (state[SDL_SCANCODE_A]) {
-      ship.angularVelocity = rotationSpeed;
-    } else if (state[SDL_SCANCODE_D]) {
-      ship.angularVelocity = -rotationSpeed;
-    } else {
+    Entity &ship = entityManager.getEntities()[shipIdx];
+    if (state[SDL_SCANCODE_A])
+      ship.angularVelocity = 180.0f;
+    else if (state[SDL_SCANCODE_D])
+      ship.angularVelocity = -180.0f;
+    else
       ship.angularVelocity = 0.0f;
-    }
 
-    // Thrust input
     bool thrusting = false;
     if (state[SDL_SCANCODE_W]) {
       thrusting = true;
       float rad = glm::radians(ship.angle + 90.0f);
-      glm::vec2 acceleration(cos(rad), sin(rad));
-      acceleration *= thrustPower;
-      ship.velocity += acceleration * deltaTime;
+      glm::vec2 accel(cos(rad), sin(rad));
+      accel *= thrustPower;
+      ship.velocity += accel * deltaTime;
     } else {
       ship.velocity *= pow(drag, deltaTime * 60.0f);
     }
 
     physicsSystem.update(entityManager, deltaTime);
+    // entityManager.clearDestroyed();
 
     renderer.clear();
-    renderer.renderShip(entityManager.getShip(), thrusting);
+    for (auto &e : entityManager.getEntities()) {
+      switch (e.type) {
+        case EntityType::Ship:
+          renderer.renderShip(e, thrusting);
+          break;
+        case EntityType::Asteroid:
+          renderer.renderAsteroid(e);  // TODO
+          break;
+        case EntityType::Bullet:
+          renderer.renderBullet(e);
+          break;
+      }
+    }
     SDL_GL_SwapWindow(window);
   }
 

@@ -21,6 +21,8 @@ class Renderer {
   void clear();
   void present();
   void renderShip(const Entity &ship, bool thrusting);
+  void renderAsteroid(const Entity &asteroid);
+  void renderBullet(const Entity &bullet);
 
  private:
   GLuint spaceshipTexture = 0;

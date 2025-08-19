@@ -282,3 +282,25 @@ void Renderer::renderShip(const Entity &ship, bool thrusting) {
     }
   }
 }
+
+void Renderer::renderAsteroid(const Entity &asteroid) {
+  // draw simple circle or textured quad
+}
+
+void Renderer::renderBullet(const Entity &bullet) {
+  glUseProgram(shaderProgram);
+
+  glm::mat4 view = glm::mat4(1.0f);
+  glm::mat4 projection = glm::ortho(-1.f, 1.f, -1.f, 1.f, -1.f, 1.f);
+  glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+  glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(bullet.position, 0.0f)) *
+                    glm::scale(glm::mat4(1.0f), glm::vec3(0.02f, 0.02f, 1.0f));
+  glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+  glUniform3f(overrideColorLoc, 1.0f, 1.0f, 0.0f);  // yellow bullets
+
+  // Draw as a simple triangle (reuse ship VAO for now)
+  glBindVertexArray(shipVAO);
+  glDrawArrays(GL_TRIANGLES, 0, 3);
+}
