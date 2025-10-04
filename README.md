@@ -110,6 +110,7 @@ cd ../
 ```
 
 ![Whiskers Engine Demo](https://github.com/rhelmer/whiskers-engine/raw/main/whiskers-engine-space-demo.mp4)
+<video src="https://github.com/rhelmer/whiskers-engine/raw/main/whiskers-engine-space-demo.mp4" controls></video>
 
 ## Development
 
