@@ -57,8 +57,8 @@ graph TB
 - [x] Cross-platform build system (CMake)
 - [x] Basic ECS implementation
 - [x] SDL2 integration for window/input
-- [ ] Unit testing framework
-- [ ] Demo space ship game
+- [x] Unit testing framework
+- [x] Demo space ship game
 
 ### Phase 2: Modern Graphics
 - [ ] Vulkan backend implementation
