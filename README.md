@@ -109,6 +109,8 @@ cd ../
 ./build/whiskers_demo
 ```
 
+![Whiskers Engine Demo](https://github.com/rhelmer/whiskers-engine/raw/main/whiskers-engine-space-demo.mp4)
+
 ## Development
 
 ### Code Style
