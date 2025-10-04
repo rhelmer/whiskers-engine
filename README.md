@@ -109,10 +109,11 @@ cd ../
 ./build/whiskers_demo
 ```
 
-![Whiskers Engine Demo](https://github.com/rhelmer/whiskers-engine/raw/main/whiskers-engine-space-demo.mp4)
+## Demo
+
+[![Whiskers Engine Demo](https://img.youtube.com/vi/t_Z3mfq22GU/maxresdefault.jpg)](https://www.youtube.com/watch?v=t_Z3mfq22GU)
 
 ## Development
-
 ### Code Style
 - Modern C++17/20 features
 - RAII and smart pointers for memory management
