@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 project(whiskers_demo_opengl)
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -13,9 +12,11 @@ else()
     set(SDL_TARGET ${SDL2_LIBRARIES})
 endif()
 
+# OpenGL (required for all platforms)
+find_package(OpenGL REQUIRED)
+
 # GLM (header-only)
 find_path(GLM_INCLUDE_DIRS "glm/glm.hpp" PATHS /opt/homebrew/include)
-
 message(STATUS "Using GLM include dirs: ${GLM_INCLUDE_DIRS}")
 
 add_executable(whiskers_demo
@@ -32,10 +33,8 @@ target_include_directories(whiskers_demo PRIVATE
     ./include
 )
 
-target_link_libraries(whiskers_demo PRIVATE ${SDL_TARGET})
-
-if(APPLE)
-    target_link_libraries(whiskers_demo PRIVATE "-framework OpenGL")
-else()
-    target_link_libraries(whiskers_demo PRIVATE GL)
-endif()
+target_link_libraries(whiskers_demo 
+    PRIVATE 
+    ${SDL_TARGET}
+    OpenGL::GL
+)
