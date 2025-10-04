@@ -105,7 +105,8 @@ cmake ..
 make -j$(nproc)
 
 # Run demo
-./whiskers_demo
+cd ../
+./build/whiskers_demo
 ```
 
 ## Development
