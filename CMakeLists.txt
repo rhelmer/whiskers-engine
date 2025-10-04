@@ -12,6 +12,13 @@ else()
     set(SDL_TARGET ${SDL2_LIBRARIES})
 endif()
 
+# SDL2main is needed on Windows
+if(WIN32)
+    if(TARGET SDL2::SDL2main)
+        list(APPEND SDL_TARGET SDL2::SDL2main)
+    endif()
+endif()
+
 # OpenGL (required for all platforms)
 find_package(OpenGL REQUIRED)
 
