@@ -1,0 +1,22 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find required dependencies
+find_dependency(SDL2)
+find_dependency(OpenGL)
+
+# GLM is header-only, just add include dirs if available
+find_path(GLM_INCLUDE_DIR "glm/glm.hpp")
+
+# Our library target
+include("${CMAKE_CURRENT_LIST_DIR}/whiskers-engine-targets.cmake")
+
+# Provide the Whiskers::Engine alias
+add_library(Whiskers::Engine ALIAS whiskers_engine)
+
+# Set WHISKERS_ENGINE_FOUND
+set(WHISKERS_ENGINE_FOUND TRUE)
+
+# Export variables
+set(WHISKERS_ENGINE_INCLUDE_DIRS "${CMAKE_CURRENT_LIST_DIR}/../../../include/whiskers_engine")

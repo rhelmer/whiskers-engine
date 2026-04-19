@@ -58,7 +58,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsdl2-dev libglm-dev cmake build-essential
+          sudo apt-get install -y libsdl2-dev libglm-dev cmake build-essential xvfb
 
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
@@ -88,6 +88,8 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DWHISKERS_BUILD_TESTS=ON
+          -DWHISKERS_DEBUG_PROTOCOL=ON
           -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
           -S ${{ github.workspace }}
 
@@ -100,14 +102,29 @@ jobs:
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DWHISKERS_BUILD_TESTS=ON
+          -DWHISKERS_DEBUG_PROTOCOL=ON
           -S ${{ github.workspace }}
 
       - name: Build
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-      - name: Test
+      - name: Test (Linux)
+        if: runner.os == 'Linux'
         working-directory: ${{ steps.strings.outputs.build-output-dir }}
-        # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        run: ctest --build-config ${{ matrix.build_type }}
+        env:
+          WHISKERS_GAME_EXE: ${{ steps.strings.outputs.build-output-dir }}/platformer_demo
+        run: xvfb-run -a ctest --output-on-failure --verbose -C ${{ matrix.build_type }}
+
+      - name: Test (macOS)
+        if: runner.os == 'macOS'
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        env:
+          WHISKERS_GAME_EXE: ${{ steps.strings.outputs.build-output-dir }}/platformer_demo
+        run: ctest --output-on-failure --verbose -C ${{ matrix.build_type }}
+
+      - name: Test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: ${{ steps.strings.outputs.build-output-dir }}
+        run: ctest --output-on-failure --verbose -C ${{ matrix.build_type }}
