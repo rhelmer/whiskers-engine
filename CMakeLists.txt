@@ -42,7 +42,11 @@ if(EMSCRIPTEN)
     FetchContent_MakeAvailable(glm)
     set(GLM_INCLUDE_DIRS "${glm_SOURCE_DIR}")
 else()
-    find_path(GLM_INCLUDE_DIRS "glm/glm.hpp" PATHS /opt/homebrew/include)
+    find_path(GLM_INCLUDE_DIRS "glm/glm.hpp"
+        PATHS
+            /opt/homebrew/include
+            /usr/include
+    )
 endif()
 message(STATUS "Using GLM include dirs: ${GLM_INCLUDE_DIRS}")
 
