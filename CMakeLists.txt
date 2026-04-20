@@ -110,10 +110,11 @@ else()
     target_include_directories(whiskers_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/whiskers)
 endif()
 
+# vcpkg inside the repo makes GLM a "source-tree" path; wrap for INTERFACE (CMP0076-style checks).
 target_include_directories(whiskers_engine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:src>
-    ${GLM_INCLUDE_DIRS}
+    $<BUILD_INTERFACE:${GLM_INCLUDE_DIRS}>
 )
 
 # Link OpenGL for the library (renderer uses GL functions)
