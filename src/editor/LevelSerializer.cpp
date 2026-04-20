@@ -2,6 +2,7 @@
 #include "LevelSerializer.h"
 
 #include <nlohmann/json.hpp>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 
@@ -58,30 +59,18 @@ static std::vector<std::string> storageList() {
     }
   }
 #else
-  // Simple directory scan
-  std::string dir = "levels/";
-  std::ifstream test(dir + ".keep");
-  if (!test) {
-    // Create directory
-    std::ofstream mk(dir + ".keep");
-    mk.close();
-  }
-  // Use popen to list directory (portable enough for demo)
-  FILE* pipe = popen("ls levels/*.json 2>/dev/null", "r");
-  if (pipe) {
-    char buf[256];
-    while (fgets(buf, sizeof(buf), pipe)) {
-      std::string line(buf);
-      // Strip newline and path
-      if (!line.empty() && line.back() == '\n') line.pop_back();
-      // Extract filename without path and extension
-      size_t slash = line.rfind('/');
-      std::string fname = (slash != std::string::npos) ? line.substr(slash + 1) : line;
-      size_t dot = fname.rfind('.');
-      if (dot != std::string::npos) fname = fname.substr(0, dot);
-      if (!fname.empty() && fname != ".keep") names.push_back(fname);
+  namespace fs = std::filesystem;
+  const fs::path dir = "levels";
+  std::error_code ec;
+  fs::create_directories(dir, ec);
+  if (fs::is_directory(dir)) {
+    for (const auto& entry : fs::directory_iterator(dir, ec)) {
+      if (ec) break;
+      if (!entry.is_regular_file()) continue;
+      if (entry.path().extension() != ".json") continue;
+      std::string fname = entry.path().stem().string();
+      if (!fname.empty()) names.push_back(fname);
     }
-    pclose(pipe);
   }
 #endif
   return names;
