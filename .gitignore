@@ -1,3 +1,7 @@
 build/
+build-*/
+build-web/
+build_native/
 .cache/
 .DS_Store
+imgui.ini
