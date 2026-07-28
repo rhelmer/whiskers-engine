@@ -5,3 +5,6 @@ build_native/
 .cache/
 .DS_Store
 imgui.ini
+nim/bin/
+nimbledeps/
+*.exe

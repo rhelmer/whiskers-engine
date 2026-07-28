@@ -93,13 +93,15 @@ Nim-native refinements to explore (not required for spike):
 
 ## 6. Phased milestones
 
-### Phase 0 — Tooling spike (1–2 days)
+### Phase 0 — Tooling spike (1–2 days) — **done**
 
 - Install Nim + nimble; pin a compiler version in the plan notes
 - Empty nimble package builds on macOS (and ideally Linux CI)
 - Document how to open a window and clear a GL color (hello triangle optional)
 
 **Exit:** `nimble build` works; README fragment for Nim exists under `docs/`.
+
+See [nim-spike-notes.md](nim-spike-notes.md) for the pinned toolchain (Nim 2.2.10) and build friction.
 
 ### Phase 1 — Space demo port (spike)
 
