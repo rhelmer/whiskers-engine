@@ -16,3 +16,7 @@ when defined(macosx):
     switch("passL", "-lSDL2")
 else:
   switch("passL", "-lSDL2")
+# begin Nimble config (version 2)
+when withDir(thisDir(), system.fileExists("nimble.paths")):
+  include "nimble.paths"
+# end Nimble config

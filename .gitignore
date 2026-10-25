@@ -8,3 +8,7 @@ imgui.ini
 nim/bin/
 nimbledeps/
 *.exe
+nimble.develop
+nimble.paths
+nim/cppcache/
+*.deps
