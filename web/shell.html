@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Whiskers — Platformer Demo</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            body {
+                background: #12101a;
+                overflow: hidden;
+                font-family: monospace;
+                color: #ccc;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                width: 100vw;
+            }
+            #container {
+                position: relative;
+                width: 1280px;
+                max-width: 100vw;
+                aspect-ratio: 16 / 9;
+            }
+            canvas.emscripten {
+                display: block;
+                width: 100%;
+                height: 100%;
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+                border: 1px solid #2a2040;
+            }
+            #overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                background: rgba(10, 8, 18, 0.92);
+                z-index: 10;
+                cursor: pointer;
+            }
+            #overlay h1 {
+                font-size: 3em;
+                color: #cc3333;
+                text-shadow:
+                    2px 2px 0 #8b1a1a,
+                    4px 4px 0 #000;
+                margin-bottom: 0.2em;
+                letter-spacing: 0.1em;
+            }
+            #overlay .subtitle {
+                font-size: 1.2em;
+                color: #888;
+                margin-bottom: 2em;
+            }
+            #overlay .prompt {
+                font-size: 1.1em;
+                color: #ffcc00;
+                animation: blink 1.2s ease-in-out infinite;
+            }
+            @keyframes blink {
+                0%,
+                100% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0.3;
+                }
+            }
+            #loading {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                gap: 1em;
+            }
+            #loading .bar-outer {
+                width: 300px;
+                height: 12px;
+                background: #2a2040;
+                border: 1px solid #443;
+                border-radius: 2px;
+                overflow: hidden;
+            }
+            #loading .bar-inner {
+                width: 0%;
+                height: 100%;
+                background: #cc3333;
+                transition: width 0.2s;
+            }
+            #loading .label {
+                font-size: 0.9em;
+                color: #888;
+            }
+            #shareware {
+                position: absolute;
+                bottom: 8px;
+                right: 12px;
+                font-size: 0.75em;
+                color: #555;
+                z-index: 5;
+                pointer-events: none;
+            }
+            #shareware a {
+                color: #cc3333;
+                text-decoration: none;
+            }
+            #shareware a:hover {
+                text-decoration: underline;
+            }
+            #controls-hint {
+                position: absolute;
+                bottom: 8px;
+                left: 12px;
+                font-size: 0.7em;
+                color: #444;
+                z-index: 5;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <canvas class="emscripten" id="canvas" tabindex="-1"></canvas>
+
+            <div id="overlay">
+                <h1>WHISKERS</h1>
+                <div class="subtitle">Platformer demo</div>
+
+                <div id="start-prompt">
+                    <div class="prompt">Click or press any key to start</div>
+                </div>
+
+                <div id="loading">
+                    <div class="bar-outer">
+                        <div class="bar-inner" id="progress-bar"></div>
+                    </div>
+                    <div class="label" id="progress-label">Loading...</div>
+                </div>
+            </div>
+
+            <div id="shareware">
+                Enjoyed The Foyer? Get the full game on
+                <a href="#">Steam</a> · <a href="#">itch.io</a>
+            </div>
+
+            <div id="controls-hint">
+                WASD/Arrows: Move · Space: Jump · X: Attack · C: Fireball
+            </div>
+        </div>
+
+        <script>
+            // --- Emscripten module override ---
+            var Module = {
+                canvas: document.getElementById("canvas"),
+
+                onRuntimeInitialized: function () {
+                    // Hide overlay once WASM is ready
+                    document.getElementById("overlay").style.display = "none";
+                },
+
+                setStatus: function (text) {
+                    var bar = document.getElementById("progress-bar");
+                    var label = document.getElementById("progress-label");
+                    var loadingDiv = document.getElementById("loading");
+                    var promptDiv = document.getElementById("start-prompt");
+
+                    if (text) {
+                        loadingDiv.style.display = "flex";
+                        promptDiv.style.display = "none";
+
+                        // Parse Emscripten's status messages like "Running... (65%)"
+                        var match = text.match(/\((\d+)%\)/);
+                        if (match) {
+                            bar.style.width = match[1] + "%";
+                            label.textContent =
+                                "Loading assets... " + match[1] + "%";
+                        } else {
+                            label.textContent = text;
+                        }
+                    }
+                },
+
+                totalDependencies: 0,
+                monitorRunDependencies: function (left) {
+                    this.totalDependencies = Math.max(
+                        this.totalDependencies,
+                        left,
+                    );
+                    Module.setStatus(
+                        left
+                            ? "Preparing... (" +
+                                  (this.totalDependencies - left) +
+                                  "/" +
+                                  this.totalDependencies +
+                                  ")"
+                            : "All downloads complete.",
+                    );
+                },
+            };
+
+            // --- Start the game on user interaction (required for Web Audio) ---
+            var started = false;
+            function startGame() {
+                if (started) return;
+                started = true;
+
+                document.getElementById("overlay").style.display = "none";
+
+                // Request pointer lock for immersive gameplay
+                var canvas = document.getElementById("canvas");
+                canvas.requestPointerLock =
+                    canvas.requestPointerLock || canvas.mozRequestPointerLock;
+                // Pointer lock is optional — game works without it too
+            }
+
+            document.addEventListener("click", startGame);
+            document.addEventListener("keydown", startGame);
+
+            // --- Resize handling ---
+            function resizeCanvas() {
+                var container = document.getElementById("container");
+                var vw = window.innerWidth;
+                var vh = window.innerHeight;
+                var aspect = 16 / 9;
+
+                if (vw / vh > aspect) {
+                    container.style.height = vh + "px";
+                    container.style.width = vh * aspect + "px";
+                } else {
+                    container.style.width = vw + "px";
+                    container.style.height = vw / aspect + "px";
+                }
+            }
+            window.addEventListener("resize", resizeCanvas);
+            resizeCanvas();
+        </script>
+
+        <!-- Emscripten-generated JS (injected at build time) -->
+        {{{ SCRIPT }}}
+    </body>
+</html>

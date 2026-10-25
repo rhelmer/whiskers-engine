@@ -1,76 +1,18 @@
 # Whiskers Engine
 
-A modern C++ game engine with dual OpenGL/Vulkan rendering backends, designed for performance and extensibility. Built with ECS architecture and cross-platform compatibility.
+A C++ **2.5D ECS platformer engine** with native (SDL2 + OpenGL) and optional **WebAssembly** builds. The repo ships a **sample platformer** (`platformer_demo` / `platformer_web`): pixel-art hero, combat, pickups, parcel-delivery quest flow, and an **ImGui** in-game editor.
 
-## Features
-
-- **Cross-Platform**: macOS, Linux, Windows support
-- **Modern Graphics**: OpenGL 3.3 Core → Vulkan migration path
-- **ECS Architecture**: Entity-Component-System for flexible game object management
-- **Memory Safe**: RAII patterns and smart pointer usage throughout
-- **Extensible Rendering**: Plugin-based shader and resource management
-
-## Architecture Overview
-
-### System Context
-```mermaid
-graph TB
-    Player[Player] -->|Input Events| GameApp[Whiskers Engine]
-    GameApp -->|Rendered Frames| Display[Display Device]
-    GameApp -->|Graphics Commands| GraphicsAPI[OpenGL/Vulkan]
-    GameApp -->|Physics Simulation| PhysicsWorld[Physics System]
 ```
-
-### Core Components
-```mermaid
-graph TB
-    subgraph Core["Engine Core"]
-        MainLoop["Game Loop"]
-        ECS["Entity Component System"]
-        ResourceMgr["Resource Manager"]
-    end
-    
-    subgraph Rendering["Rendering Pipeline"]
-        Renderer["Abstract Renderer"]
-        GLBackend["OpenGL Backend"]
-        VKBackend["Vulkan Backend (Planned)"]
-        ShaderMgr["Shader Manager"]
-    end
-    
-    subgraph Platform["Platform Layer"]
-        Window["Window Management"]
-        Input["Input Handling"]
-    end
-    
-    MainLoop --> ECS
-    MainLoop --> Renderer
-    Renderer --> GLBackend
-    Renderer --> VKBackend
-    ECS --> ResourceMgr
-    Platform --> MainLoop
+╔══════════════════════════════════════════════════╗
+║         Whiskers — Platformer Demo             ║
+╠══════════════════════════════════════════════════╣
+║  A/D or ←/→  Move                              ║
+║  Space/W/↑   Jump                              ║
+║  X or J       Melee                            ║
+║  C or K       Fireball (costs mana)            ║
+║  F1           Toggle editor                    ║
+╚══════════════════════════════════════════════════╝
 ```
-
-## Roadmap
-
-### Phase 1: Foundation (Current)
-- [x] OpenGL 3.3 Core renderer
-- [x] Cross-platform build system (CMake)
-- [x] Basic ECS implementation
-- [x] SDL2 integration for window/input
-- [x] Unit testing framework
-- [x] Demo space ship game
-
-### Phase 2: Modern Graphics
-- [ ] Vulkan backend implementation
-- [ ] Compute shader support
-- [ ] Multi-threaded command buffer recording
-- [ ] Memory management optimization
-
-### Phase 3: Advanced Features
-- [ ] AI-driven procedural content generation
-- [ ] Neural network integration (ONNX runtime)
-- [ ] Advanced lighting (PBR, ray tracing)
-- [ ] Formal verification of critical systems
 
 ## Quick Start
 
@@ -78,85 +20,67 @@ graph TB
 
 **macOS**
 ```bash
-brew install sdl2 glm glfw cmake pkg-config
+brew install sdl2 glm cmake pkg-config
 ```
 
 **Ubuntu/Debian**
 ```bash
 sudo apt update
-sudo apt install -y libsdl2-dev libglm-dev libglfw3-dev cmake build-essential pkg-config
+sudo apt install -y libsdl2-dev libglm-dev cmake build-essential pkg-config
 ```
 
 **Windows (vcpkg)**
 ```powershell
-git clone https://github.com/Microsoft/vcpkg.git
-./vcpkg/bootstrap-vcpkg.bat
-./vcpkg/vcpkg install sdl2 glm glfw3 --triplet=x64-windows
+./vcpkg/vcpkg install sdl2 glm --triplet=x64-windows
 ```
 
-### Build & Run
+### Native Build & Run
 
 ```bash
-# Clone and build
-git clone <your-repo>
-cd whiskers-engine
 mkdir build && cd build
 cmake ..
-make -j$(nproc)
+cmake --build .
 
-# Run demo
-cd ../
-./build/whiskers_demo
+./platformer_demo
 ```
 
-## Demo
+### Web (WASM) Build
 
-[![Whiskers Engine Demo](https://img.youtube.com/vi/t_Z3mfq22GU/maxresdefault.jpg)](https://www.youtube.com/watch?v=t_Z3mfq22GU)
+Requires the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html):
 
-## Development
-### Code Style
-- Modern C++17/20 features
-- RAII and smart pointers for memory management
-- Header-only libraries where appropriate
-- Consistent naming: `PascalCase` for classes, `snake_case` for functions
-
-### Contributing
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
-
-### Testing
 ```bash
-# Run unit tests
-cd build
-ctest --verbose
-
-# Run integration tests
-./tests/integration_tests
+source /path/to/emsdk/emsdk_env.sh
+./web/build_wasm.sh
 ```
 
-## Technical Details
+Then open or serve `build-web/platformer_web.html`.
 
-### Graphics Pipeline
-- **OpenGL**: 3.3 Core Profile with VAOs/VBOs
-- **Shaders**: GLSL 330 with automatic compilation/linking
-- **Textures**: STB-based loading with automatic mipmap generation
-- **Future**: Vulkan backend for explicit GPU control
+## Features
 
-### Entity Component System
-- **Components**: Plain data structures
-- **Systems**: Pure functions operating on component data
-- **Entities**: Lightweight ID-based handles
-- **Memory**: Contiguous storage for cache efficiency
+- **ECS** — stable handles, component queries, physics, rendering, camera.
+- **Sample content** — two small levels, NPCs, delivery zones, moving platforms, enemies.
+- **Editor** — ImGui viewport and entity tools (F1 in the demo).
+- **Tests** — Catch2 + optional JSON [debug protocol](specs/testing-debug-protocol.md) for automation (`ctest`).
+
+## Layout
+
+| Path | Role |
+|------|------|
+| `src/core/` | Game loop, ECS |
+| `src/physics/` | Physics |
+| `src/rendering/` | OpenGL renderer, HUD |
+| `src/editor/` | ImGui editor |
+| `src/game/` | Pixel art sprites, animator |
+| `src/level/` | Level JSON |
+| `tests/` | Unit + integration tests |
+| `specs/` | Design + testing docs |
+
+| Target | Description |
+|--------|-------------|
+| `whiskers_engine` | Static library |
+| `platformer_demo` | Sample game (desktop) |
+| `platformer_web` | Same demo in the browser (Emscripten) |
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
-
-## Acknowledgments
-
-- [GLAD](https://glad.dav1d.de/) for OpenGL loading
-- [GLM](https://glm.g-truc.net/) for mathematics
-- [SDL2](https://www.libsdl.org/) for platform abstraction
+See project root for license terms.
